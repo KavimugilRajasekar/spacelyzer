@@ -130,15 +130,18 @@ def print_summary_section(renderer: DiskUsageRenderer, duplicates: list, reclaim
         
     print("\n" + div_char * 60)
     print(f"{c_bold}{c_cyan}Scan Completed{c_reset}")
-    print(f"  {c_cyan}Folders scanned{c_reset}          {results.folders_scanned:,}")
-    print(f"  {c_cyan}Files scanned{c_reset}           {results.files_scanned:,}")
-    print(f"  {c_cyan}Unique extensions{c_reset}            {ext_count}")
-    print(f"  {c_cyan}Largest folder{c_reset}           {largest_folder_name}")
-    print(f"  {c_cyan}Largest file{c_reset}          {largest_file_name}")
-    print(f"  {c_cyan}Largest duplicate group{c_reset}   {largest_dup_group_count} files" if largest_dup_group_count else f"  {c_cyan}Largest duplicate group{c_reset}   {dash_char}")
-    print(f"  {c_cyan}Total duplicate size{c_reset}        {format_bytes(total_duplicate_size, renderer.raw_bytes)}")
-    print(f"  {c_cyan}Potentially reclaimable{c_reset}     {c_green}{format_bytes(reclaimable_size, renderer.raw_bytes)}{c_reset}")
-    print(f"  {c_cyan}Elapsed time{c_reset}             {results.elapsed_time:.1f} sec")
+    
+    dup_group_str = f"{largest_dup_group_count} files" if largest_dup_group_count else dash_char
+    
+    print(f"  {c_cyan}{'Folders Scanned':<26}{c_reset} : {results.folders_scanned:,}")
+    print(f"  {c_cyan}{'Files Scanned':<26}{c_reset} : {results.files_scanned:,}")
+    print(f"  {c_cyan}{'Unique Extensions':<26}{c_reset} : {ext_count}")
+    print(f"  {c_cyan}{'Largest Folder':<26}{c_reset} : {largest_folder_name}")
+    print(f"  {c_cyan}{'Largest File':<26}{c_reset} : {largest_file_name}")
+    print(f"  {c_cyan}{'Largest Duplicate Group':<26}{c_reset} : {dup_group_str}")
+    print(f"  {c_cyan}{'Total Duplicate Size':<26}{c_reset} : {format_bytes(total_duplicate_size, renderer.raw_bytes)}")
+    print(f"  {c_cyan}{'Potentially Reclaimable':<26}{c_reset} : {c_green}{format_bytes(reclaimable_size, renderer.raw_bytes)}{c_reset}")
+    print(f"  {c_cyan}{'Elapsed Time':<26}{c_reset} : {results.elapsed_time:.1f} sec")
     print(div_char * 60)
 
 def main(args_list: Optional[List[str]] = None) -> int:
