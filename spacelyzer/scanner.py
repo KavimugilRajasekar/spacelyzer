@@ -28,6 +28,7 @@ class ScanResults:
         self.folders_scanned = 0
         self.files_scanned = 0
         self.elapsed_time = 0.0
+        self.max_depth_reached = 0          # deepest level actually traversed
         # Maps absolute path string to EntryInfo
         self.entries: Dict[str, EntryInfo] = {}
         # Stores parent-child relationships for hierarchical tree building
@@ -58,6 +59,17 @@ class DiskScanner:
         self.follow_links = follow_links
         self.ignore_patterns = ignore_patterns or []
         self.min_size = min_size
+        # Windows pseudo-folders: always inaccessible and add no value
+        self._win_skip_names: set = {
+            'System Volume Information',
+            '$Recycle.Bin',
+            '$RECYCLE.BIN',
+            '$WinREAgent',
+            '$WINDOWS.~BT',
+            '$WINDOWS.~WS',
+            'Recovery',
+            'DumpStack.log.tmp',
+        } if os.name == 'nt' else set()
         
         if not self.root_path.exists():
             raise PathNotFoundException(f"Path not found: {root_path}")
@@ -149,6 +161,8 @@ class DiskScanner:
                     continue
                 
                 results.folders_scanned += 1
+                if curr_depth > results.max_depth_reached:
+                    results.max_depth_reached = curr_depth
                 all_folders.append((curr_path, curr_depth))
                 curr_path_str = str(curr_path)
                 results.hierarchy[curr_path_str] = []
@@ -165,8 +179,15 @@ class DiskScanner:
                             continue
                             
                         if entry.is_dir(follow_symlinks=self.follow_links):
+                            # Skip Windows inaccessible pseudo-folders
+                            if entry.name in self._win_skip_names:
+                                continue
                             results.hierarchy[curr_path_str].append(str(entry_path))
-                            stack.append((entry_path, curr_depth + 1))
+                            # Only push if child depth is within the limit — avoids
+                            # thousands of wasted push/pop cycles on large drives
+                            child_depth = curr_depth + 1
+                            if self.depth is None or child_depth <= self.depth:
+                                stack.append((entry_path, child_depth))
                         else:
                             # It's a file
                             size = entry.stat().st_size

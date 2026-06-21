@@ -191,7 +191,7 @@ def main(args_list: Optional[List[str]] = None) -> int:
         print(f"Unknown error during scan: {e}", file=sys.stderr)
         return 1
 
-    renderer = DiskUsageRenderer(results, args.bytes)
+    renderer = DiskUsageRenderer(results, args.bytes, depth_limit=args.depth)
     
     # Run similarity detector for reports/summaries
     detector = SimilarityDetector(results.files, [e for e in results.entries.values() if e.is_dir])

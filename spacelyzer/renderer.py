@@ -12,9 +12,10 @@ from spacelyzer.suggestions import SuggestionItem
 from spacelyzer.fingerprint import FingerprintCategory
 
 class DiskUsageRenderer:
-    def __init__(self, results: ScanResults, raw_bytes: bool = False):
+    def __init__(self, results: ScanResults, raw_bytes: bool = False, depth_limit: Optional[int] = None):
         self.results = results
         self.raw_bytes = raw_bytes
+        self.depth_limit = depth_limit  # user-specified --depth value (None = unlimited)
 
     def get_sorted_entries(self, sort_key: str = 'size', reverse: bool = False) -> List[EntryInfo]:
         """Get scan entries sorted by size, name, or modified date."""
@@ -51,8 +52,13 @@ class DiskUsageRenderer:
         c_reset = colors['reset']
 
         # Print overall stats header
+        depth_reached = self.results.max_depth_reached
+        if self.depth_limit is not None:
+            depth_str = f"Limit {self.depth_limit}  (reached {depth_reached})"
+        else:
+            depth_str = f"{depth_reached}  (unlimited)"
         print(f" {c_cyan}Path{c_reset}      : {self.results.root_path}")
-        print(f" {c_cyan}Depth{c_reset}     : {self.results.folders_scanned if not hasattr(self, 'depth') else 'Custom'}")
+        print(f" {c_cyan}Depth{c_reset}     : {depth_str}")
         print(f" {c_cyan}Folders{c_reset}   : {self.results.folders_scanned:,}")
         print(f" {c_cyan}Files{c_reset}     : {self.results.files_scanned:,}")
         print(f" {c_cyan}Total{c_reset}     : {format_bytes(self.results.total_size, self.raw_bytes)}")
