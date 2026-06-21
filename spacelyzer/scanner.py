@@ -130,7 +130,8 @@ class DiskScanner:
                     sys.stderr.flush()
                     last_progress_time = curr_time
                 
-                if self._should_ignore(curr_path):
+                # Never ignore the root path itself (e.g. C:\ has hidden attrs on Windows)
+                if curr_path != self.root_path and self._should_ignore(curr_path):
                     continue
                     
                 if self.depth is not None and curr_depth > self.depth:
