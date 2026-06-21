@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spacelyzer"
+version = "1.0.0"
+description = "A powerful, read-only terminal-based disk space analyzer and similarity detector."
+readme = "SPACELYZER.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = []
+
+[project.scripts]
+spacelyzer = "spacelyzer.cli:main"
